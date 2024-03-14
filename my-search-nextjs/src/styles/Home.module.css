@@ -1,10 +1,12 @@
 .main {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   align-items: center;
+  /* justify-content: space-between; */
   padding: 6rem;
   min-height: 100vh;
+
+  transition: all 0.5s ease-out;
 }
 
 .description {
@@ -107,6 +109,7 @@
 .logo {
   position: relative;
 }
+
 /* Enable hover only on non-touch devices */
 @media (hover: hover) and (pointer: fine) {
   .card:hover {
@@ -178,11 +181,9 @@
     border-radius: 0;
     border: none;
     border-bottom: 1px solid rgba(var(--callout-border-rgb), 0.25);
-    background: linear-gradient(
-      to bottom,
-      rgba(var(--background-start-rgb), 1),
-      rgba(var(--callout-rgb), 0.5)
-    );
+    background: linear-gradient(to bottom,
+        rgba(var(--background-start-rgb), 1),
+        rgba(var(--callout-rgb), 0.5));
     background-clip: padding-box;
     backdrop-filter: blur(24px);
   }
@@ -193,11 +194,9 @@
     inset: auto 0 0;
     padding: 2rem;
     height: 200px;
-    background: linear-gradient(
-      to bottom,
-      transparent 0%,
-      rgb(var(--background-end-rgb)) 40%
-    );
+    background: linear-gradient(to bottom,
+        transparent 0%,
+        rgb(var(--background-end-rgb)) 40%);
     z-index: 1;
   }
 }
@@ -223,7 +222,36 @@
   from {
     transform: rotate(360deg);
   }
+
   to {
     transform: rotate(0deg);
   }
+}
+
+
+/* description의 기본 스타일 */
+.description {
+  transition: height 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+  /* iOS 스타일 속도 조정 */
+  overflow: hidden;
+  /* 높이 변화 시 내용이 잘리지 않도록 처리 */
+  height: 0;
+  /* 초기 높이 */
+  /* 다른 스타일 */
+}
+
+/* 애니메이션이 적용될 때의 높이 */
+.description-active {
+  height: 100px;
+  /* 활성화 상태에서의 높이, 실제 필요한 높이로 조정 */
+}
+
+.description.collapsed {
+  height: 0;
+  /* Or your desired collapsed height */
+}
+
+.description.expanded {
+  height: 100px;
+  /* Adjust to your desired expanded height */
 }
