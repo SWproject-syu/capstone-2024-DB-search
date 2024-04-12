@@ -12,7 +12,7 @@ export default function Home() {
   const [isInput, setIsInput] = useState(false);
   //검색결과
   const [searchDataList, setSearchDataList] = useState<any[]>([]);
-
+  const a = 5;
   const onChangeText: ChangeEventHandler<HTMLInputElement> = async ({ target: { value } }) => {
     setIsInput(value.length > 0);
     if (value.trim()) {
