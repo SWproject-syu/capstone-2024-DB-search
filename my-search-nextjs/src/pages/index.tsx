@@ -11,6 +11,8 @@ export default function Home() {
   //입력창에 글자 있는지 여부
   const [isInput, setIsInput] = useState(false);
   //검색결과
+  //검색결과
+  //검색결과
   const [searchDataList, setSearchDataList] = useState<any[]>([]);
   const a = 5;
   const onChangeText: ChangeEventHandler<HTMLInputElement> = async ({ target: { value } }) => {
