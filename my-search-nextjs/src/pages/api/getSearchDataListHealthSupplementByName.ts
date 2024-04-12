@@ -1,7 +1,7 @@
 // pages/api/getSearchDataList.ts
 import axios from "axios";
 import type { NextApiRequest, NextApiResponse } from "next";
-import { END_POINT } from "./common";
+import { ELASTICSEARCH_EC2_IP } from "./common";
 
 // Elasticsearch 검색 결과 타입
 interface SearchResponse {
@@ -18,6 +18,8 @@ type Data = {
   data?: any[];
 };
 
+const END_POINT = `http://${ELASTICSEARCH_EC2_IP}/healthsupplement/_search`;
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
   // 쿼리 파라미터에서 검색어 추출
   const { query } = req.query;
@@ -26,8 +28,32 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
   const searchQuery = {
     query: {
-      prefix: {
-        message: query, // 사용자 필드에서 입력된 쿼리로 시작하는 결과를 찾음
+      function_score: {
+        query: {
+          prefix: {
+            MainIngredient: query, // 사용자 필드에서 입력된 쿼리로 시작하는 결과를 찾음
+          },
+        },
+        functions: [
+          {
+            filter: {
+              match: {
+                MainIngredient: "비타민",
+              },
+            },
+            weight: 2.0,
+          },
+          {
+            filter: {
+              match: {
+                MainIngredient: "오메가3",
+              },
+            },
+            weight: 10.0,
+          },
+        ],
+        score_mode: "multiply", // 점수 모드 설정 (기본 점수에 가중치 적용)
+        boost_mode: "sum", // 부스트 모드 설정 (기본 점수와 가중치 합산)
       },
     },
   };

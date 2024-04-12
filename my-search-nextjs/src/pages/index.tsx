@@ -13,18 +13,14 @@ export default function Home() {
   //검색결과
   const [searchDataList, setSearchDataList] = useState<any[]>([]);
 
-  const a = 5;
-  console.log(a);
-
   const onChangeText: ChangeEventHandler<HTMLInputElement> = async ({ target: { value } }) => {
     setIsInput(value.length > 0);
     if (value.trim()) {
       const data = await axios
-        .get<any[]>(`/api/getSearchDataListByUserName?query=${value}`)
+        .get<{ data: any[] }>(`/api/getSearchDataListHealthSupplementByName?query=${value}`)
         .catch((e) => console.error("Error fetching search results:", e));
       if (!data) return;
-      console.log(data.data);
-      setSearchDataList(data.data);
+      setSearchDataList(data.data.data);
     } else {
       setSearchDataList([]);
     }
@@ -70,6 +66,7 @@ export default function Home() {
         </div>
 
         <div className={styles.grid} />
+        {searchDataList && searchDataList.map((i) => <div>{JSON.stringify(i)}</div>)}
       </main>
     </>
   );
