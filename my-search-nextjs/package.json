@@ -6,7 +6,6 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
     "ssh-connect": "ssh -i sy.pem ubuntu@43.201.88.182 -p 22"
   },
   "dependencies": {
