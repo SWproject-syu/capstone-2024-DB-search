@@ -42,7 +42,7 @@ export default function Home() {
           className={`${styles.description} ${!isInput ? styles["description-active"] : ""}`}
           style={{ justifyContent: "space-between" }}
         >
-          <p>검색어를 입력하여 검색해보세요. [현재 검색 index: {MY_BRANCH}]</p>
+          <p>검색어를 입력하여 검색해보세요. !!! [현재 검색 index: {MY_BRANCH}]</p>
           <div>
             <a href="https://www.syu.ac.kr/cse/" target="_blank" rel="noopener noreferrer">
               By{" "}
