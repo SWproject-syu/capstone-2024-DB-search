@@ -32,11 +32,7 @@ export default function Home() {
       setLoading(true);
       setSearchDataList([]);
       const data = await axios
-<<<<<<< HEAD
-        .get<{ data: any[] }>(`/api/getSearchDataListHealthSupplementByName?query=${value}`)
-=======
         .get<{ data: any[] }>(`/api/getSearchSupplementByAll?query=${value}`)
->>>>>>> 3235992bc1c41d69a4842a62996ec92a0a26a39b
         .catch((e) => console.error("Error fetching search results:", e));
       setLoading(false);
       if (!data) return;
@@ -86,10 +82,6 @@ export default function Home() {
           />
         </div>
 
-<<<<<<< HEAD
-        <div className={styles.grid} />
-        {searchDataList && searchDataList.map((i) => <div>{JSON.stringify(i)}</div>)}
-=======
         {isInput && (
           <div
             className={styles.grid}
@@ -125,7 +117,6 @@ export default function Home() {
             )}
           </div>
         )}
->>>>>>> 3235992bc1c41d69a4842a62996ec92a0a26a39b
       </main>
     </>
   );
