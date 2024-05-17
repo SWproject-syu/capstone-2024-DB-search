@@ -19,7 +19,7 @@ export default function Home() {
     setIsInput(value.length > 0);
     if (value.trim()) {
       const data = await axios
-        .get<{ data: any[] }>(`/api/getSearchDataListHealthSupplementByName?query=${value}`)
+        .get<{ data: any[] }>(`/api/getSearchDataListByUserName?query=${value}`)
         .catch((e) => console.error("Error fetching search results:", e));
       if (!data) return;
       setSearchDataList(data.data.data);
