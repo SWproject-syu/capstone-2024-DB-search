@@ -27,7 +27,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   const searchQuery = {
     query: {
       prefix: {
-        message: query, // 사용자 필드에서 입력된 쿼리로 시작하는 결과를 찾음
+        user: query, // 사용자 필드에서 입력된 쿼리로 시작하는 결과를 찾음
       },
     },
   };

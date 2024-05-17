@@ -7,20 +7,35 @@ import axios from "axios";
 import { MY_BRANCH } from "./api/common";
 const inter = Inter({ subsets: ["latin"] });
 
+type ResponseType = {
+  _index: string; //"healthsupplement",
+  _type: string; //"_doc",
+  _id: string; //"d340o44BXoPQouNCWZAR",
+  _score: number; // 1,
+  _source: {
+    ProductName: string; //"SeaRich 오메가-3 with 비타민D3",
+    BrandName: string; //"내추럴팩터스",
+    MainIngredient: string; //"오메가3, 비타민D",
+    CreationDate: string; //"2023-06-01T17:25:52"
+  };
+}[];
 export default function Home() {
   //입력창에 글자 있는지 여부
   const [isInput, setIsInput] = useState(false);
+  const [isLoading, setLoading] = useState(true);
   //검색결과
-  //검색결과
-  //검색결과
-  const [searchDataList, setSearchDataList] = useState<any[]>([]);
-  const a = 5;
+  const [searchDataList, setSearchDataList] = useState<ResponseType>([]);
+
   const onChangeText: ChangeEventHandler<HTMLInputElement> = async ({ target: { value } }) => {
     setIsInput(value.length > 0);
     if (value.trim()) {
+      setLoading(true);
+      setSearchDataList([]);
       const data = await axios
-        .get<{ data: any[] }>(`/api/getSearchDataListByUserName?query=${value}`)
+        .get<{ data: any[] }>(`/api/getSearchSupplementByAll?query=${value}`)
         .catch((e) => console.error("Error fetching search results:", e));
+      console.log("searchDataList", data ? data.data.data : data);
+      setLoading(false);
       if (!data) return;
       setSearchDataList(data.data.data);
     } else {
@@ -41,7 +56,7 @@ export default function Home() {
           className={`${styles.description} ${!isInput ? styles["description-active"] : ""}`}
           style={{ justifyContent: "space-between" }}
         >
-          <p>검색어를 입력하여 검색해보세요. [현재 검색 index: {MY_BRANCH}]</p>
+          <p>검색어를 입력하여 검색해보세요. !!! [현재 검색 index: {MY_BRANCH}]</p>
           <div>
             <a href="https://www.syu.ac.kr/cse/" target="_blank" rel="noopener noreferrer">
               By{" "}
@@ -55,7 +70,6 @@ export default function Home() {
             </a>
           </div>
         </div>
-
         <div
           className={styles.center}
           style={{ display: "flex", paddingTop: isInput ? 0 : "25vh", transition: "all 1s ease-out" }}
@@ -67,8 +81,41 @@ export default function Home() {
           />
         </div>
 
-        <div className={styles.grid} />
-        {searchDataList && searchDataList.map((i) => <div>{JSON.stringify(i)}</div>)}
+        {isInput && (
+          <div
+            className={styles.grid}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              backgroundColor: " rgba(var(--callout-rgb), 0.5)",
+              border: "1px solid rgba(63, 119, 147, 0.3)",
+              borderRadius: "var(--border-radius)",
+              padding: 12,
+              maxHeight: "70vh",
+              overflowY: "scroll",
+            }}
+          >
+            {isLoading ? (
+              <div>불러오는 중입니다...</div>
+            ) : searchDataList.length === 0 ? (
+              <div>검색결과가 없습니다.</div>
+            ) : (
+              searchDataList.map((i) => (
+                <div>
+                  추천점수: {i._score}
+                  <br />
+                  브랜드: {i._source.BrandName}
+                  <br />
+                  주성분: {i._source.MainIngredient}
+                  <br />
+                  제품명: {i._source.ProductName}
+                  {/* <br />0 */}
+                  <div style={{ margin: 8, height: 4, width: "100%", background: "gray" }} />
+                </div>
+              ))
+            )}
+          </div>
+        )}
       </main>
     </>
   );

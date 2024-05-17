@@ -30,32 +30,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     query: {
       function_score: {
         query: {
-          prefix: {
-            MainIngredient: query, // 사용자 필드에서 입력된 쿼리로 시작하는 결과를 찾음
+          bool: {
+            must: {
+              multi_match: {
+                query: query,
+                fields: ["ProductName", "MainIngredient", "BrandName"],
+              },
+            },
           },
         },
-        functions: [
-          {
-            filter: {
-              match: {
-                MainIngredient: "비타민",
-              },
-            },
-            weight: 2.0,
-          },
-          {
-            filter: {
-              match: {
-                MainIngredient: "오메가3",
-              },
-            },
-            weight: 10.0,
-          },
-        ],
-        score_mode: "multiply", // 점수 모드 설정 (기본 점수에 가중치 적용)
-        boost_mode: "sum", // 부스트 모드 설정 (기본 점수와 가중치 합산)
+        score_mode: "multiply",
+        boost_mode: "sum",
       },
     },
+    size: 100,
   };
 
   // Elasticsearch 검색 요청

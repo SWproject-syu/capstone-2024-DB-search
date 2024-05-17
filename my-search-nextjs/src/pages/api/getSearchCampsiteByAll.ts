@@ -18,7 +18,7 @@ type Data = {
   data?: any[];
 };
 
-const END_POINT = `http://${ELASTICSEARCH_EC2_IP}/healthsupplement/_search`;
+const END_POINT = `http://${ELASTICSEARCH_EC2_IP}/campsitename/_search`;
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
   // 쿼리 파라미터에서 검색어 추출
@@ -27,33 +27,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   if (!query) return res.status(400).json({ error: "Query parameter is required." });
   const searchQuery = {
     query: {
-      function_score: {
-        query: {
-          prefix: {
-            // 'match_phrase' 대신 'match' 사용
-            ProductName: query,
-          },
-        },
-        functions: [
+      bool: {
+        should: [
           {
-            filter: {
-              match: {
-                MainIngredient: "비타민",
-              },
+            bool: {
+              should: [
+                { wildcard: { CampsiteName: `*${query}*` } },
+                { wildcard: { Description: `*${query}*` } },
+                { wildcard: { Address: `*${query}*` } },
+              ],
+              minimum_should_match: 1,
             },
-            weight: 2.0,
-          },
-          {
-            filter: {
-              match: {
-                MainIngredient: "오메가3",
-              },
-            },
-            weight: 1,
           },
         ],
-        score_mode: "multiply",
-        boost_mode: "sum",
+        minimum_should_match: 1,
       },
     },
     size: 100,

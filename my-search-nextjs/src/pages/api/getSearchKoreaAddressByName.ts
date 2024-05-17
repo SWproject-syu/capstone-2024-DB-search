@@ -30,7 +30,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
       function_score: {
         query: {
           prefix: {
-            // 'match_phrase' 대신 'match' 사용
             ProductName: query,
           },
         },
