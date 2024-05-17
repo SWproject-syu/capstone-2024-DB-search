@@ -22,19 +22,17 @@ type ResponseType = {
 export default function Home() {
   //입력창에 글자 있는지 여부
   const [isInput, setIsInput] = useState(false);
-  //검색결과
-  //검색결과
-  //검색결과
   const [isLoading, setLoading] = useState(true);
+  //검색결과
   const [searchDataList, setSearchDataList] = useState<ResponseType>([]);
-  const a = 5;
+
   const onChangeText: ChangeEventHandler<HTMLInputElement> = async ({ target: { value } }) => {
     setIsInput(value.length > 0);
     if (value.trim()) {
       setLoading(true);
       setSearchDataList([]);
       const data = await axios
-        .get<{ data: any[] }>(`/api/getSearchSupplementByName?query=${value}`)
+        .get<{ data: any[] }>(`/api/getSearchSupplementByAll?query=${value}`)
         .catch((e) => console.error("Error fetching search results:", e));
       setLoading(false);
       if (!data) return;
@@ -73,7 +71,6 @@ export default function Home() {
             </a>
           </div>
         </div>
-
         <div
           className={styles.center}
           style={{ display: "flex", paddingTop: isInput ? 0 : "25vh", transition: "all 1s ease-out" }}
