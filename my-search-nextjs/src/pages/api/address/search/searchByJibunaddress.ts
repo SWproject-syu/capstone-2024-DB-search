@@ -25,6 +25,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
   if (!query) return res.status(400).json({ error: "Query parameter is required." });
 
+  // 검색어를 공백으로 분리하여 각각의 검색어에 가중치를 부여
+  const terms = (query as string).split(" ").filter((term) => term.trim() !== "");
+
+  const functions = terms.map((term, index) => {
+    const weight = terms.length - index; // 가중치: 앞쪽 단어일수록 더 높은 가중치
+    return {
+      filter: {
+        match: {
+          JibunAddress: term,
+        },
+      },
+      weight: weight,
+    };
+  });
+
   // Elasticsearch 검색 쿼리 생성
   const searchQuery = {
     query: {
@@ -32,43 +47,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         query: {
           multi_match: {
             query: query,
-            fields: [
-              "Sido^5",
-              "SidoEng^5",
-              "SigunGu^4",
-              "SigunGuEng^4",
-              "EupMyeon^3",
-              "EupMyeonEng^3",
-              "LegalDongName^2",
-              "RiName^2",
-              "AdministrativeDongName^2",
-              "JibunMainNumber",
-              "JibunSubNumber",
-              "JibunAddress",
-            ],
-            type: "best_fields", // 여러 필드에서 최상의 매칭을 찾음
-            fuzziness: "AUTO", // 오타에 유연하게 대응
+            fields: ["JibunAddress"],
+            type: "best_fields",
+            fuzziness: "AUTO",
           },
         },
-        boost: "5", // 기본 부스트 값
-        functions: [
-          {
-            filter: { match: { Sido: query } },
-            weight: 5,
-          },
-          {
-            filter: { match: { SigunGu: query } },
-            weight: 4,
-          },
-          {
-            filter: { match: { EupMyeon: query } },
-            weight: 3,
-          },
-          {
-            filter: { match: { LegalDongName: query } },
-            weight: 2,
-          },
-        ],
+        functions: functions,
         score_mode: "sum",
         boost_mode: "multiply",
       },
@@ -82,5 +66,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
   // 결과 반환
   if (!data) return res.status(500).json({ error: "Failed to fetch search results." });
-  res.status(200).json({ data: data.data.hits.hits.map((hit) => hit._source) });
+  res.status(200).json({ data: data.data.hits.hits });
 }

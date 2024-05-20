@@ -54,5 +54,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
   // 결과 반환
   if (!data) return res.status(500).json({ error: "Failed to fetch search results." });
-  res.status(200).json({ data: data.data.hits.hits.map((hit) => hit._source) });
+  res.status(200).json({ data: data.data.hits.hits });
 }

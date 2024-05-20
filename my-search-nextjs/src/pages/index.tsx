@@ -47,7 +47,7 @@ export default function Home() {
        *  @기능2 여러 프로퍼티(=칼럼) 통합 검색 + 여러 필드에서 최상의 매칭을 찾음(best_fields) + 오타에 유연하게 대응(fuzziness)
        *  @기능3 앞쪽 글자에 매칭할수록 가중치 적용
        */
-      const data = await axios.get<{ data: any[] }>(`/api/campsite/search/searchByDescription?query=${query}`);
+      const data = await axios.get<{ data: any[] }>(`/api/address/search/searchByJibunaddress?query=${query}`);
       setSearchDataList(data.data.data);
     } catch (e) {
       console.error("Error fetching search results:", e);
@@ -131,12 +131,14 @@ export default function Home() {
                 <div key={i._id}>
                   추천점수: {i._score}
                   <br />
-                  {Object.entries(i._source).map(([key, value]) => (
+                  JibunAddress: {i._source.JibunAddress}
+                  <br />
+                  {/* {Object.entries(i._source).map(([key, value]) => (
                     <div key={key}>
                       {key}: {value}
                       <br />
                     </div>
-                  ))}
+                  ))} */}
                   <div style={{ margin: 8, height: 4, width: "100%", background: "gray" }} />
                 </div>
               ))
