@@ -34,9 +34,9 @@ export default function Home() {
        * @건강기능식품2 /api/healthsupplement/search/searchByAll
        *  @기능 여러 프로퍼티(=칼럼, 브랜드/제품명/주성분 중 1개라도 있는것) 검색하기
        *
-       * @캠핑장1 /api/campsite/search/searchByCampsiteName
+       * @전국캠핑장1 /api/campsite/search/searchByCampsiteName
        *  @기능 검색어가 포함된 결과 찾기
-       * @캠핑장2 /api/campsite/search/searchByDescription
+       * @전국캠핑장2 /api/campsite/search/searchByDescription
        *  @기능 문장으로 검색하기
        *
        * @대한민국주소검색1 /api/address/search/searchByRoadaddress
@@ -47,7 +47,7 @@ export default function Home() {
        *  @기능2 여러 프로퍼티(=칼럼) 통합 검색 + 여러 필드에서 최상의 매칭을 찾음(best_fields) + 오타에 유연하게 대응(fuzziness)
        *  @기능3 앞쪽 글자에 매칭할수록 가중치 적용
        */
-      const data = await axios.get<{ data: any[] }>(`/api/address/search/searchByRoadaddress?query=${query}`);
+      const data = await axios.get<{ data: any[] }>(`/api/healthsupplement/search/searchByAll?query=${query}`);
       setSearchDataList(data.data.data);
     } catch (e) {
       console.error("Error fetching search results:", e);
