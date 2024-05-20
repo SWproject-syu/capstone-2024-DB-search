@@ -1,32 +1,74 @@
 import styles from "@/styles/Home.module.css";
 import { Inter } from "next/font/google";
 import Head from "next/head";
-import { ChangeEventHandler, useState } from "react";
-
+import { ChangeEventHandler, useCallback, useState } from "react";
+import { debounce } from "lodash";
 import axios from "axios";
 import { MY_BRANCH } from "./api/common";
 const inter = Inter({ subsets: ["latin"] });
 
+type ResponseType = {
+  _index: string; //"healthsupplement",
+  _type: string; //"_doc",
+  _id: string; //"d340o44BXoPQouNCWZAR",
+  _score: number; // 1,
+  _source: { [key: string]: string };
+}[];
+
 export default function Home() {
   //입력창에 글자 있는지 여부
   const [isInput, setIsInput] = useState(false);
+  const [isLoading, setLoading] = useState(true);
   //검색결과
-  //검색결과
-  //검색결과
-  const [searchDataList, setSearchDataList] = useState<any[]>([]);
-  const a = 5;
-  const onChangeText: ChangeEventHandler<HTMLInputElement> = async ({ target: { value } }) => {
+  const [searchDataList, setSearchDataList] = useState<ResponseType>([]);
+
+  const fetchSearchResults = async (query: string) => {
+    setLoading(true);
+    setSearchDataList([]);
+    try {
+      /**
+       * @sample 사용가능 API
+       *
+       * @건강기능식품1 /api/healthsupplement/search/searchByName
+       *  @기능 앞글자부터 정확하게 검색하기
+       * @건강기능식품2 /api/healthsupplement/search/searchByAll
+       *  @기능 여러 프로퍼티(=칼럼, 브랜드/제품명/주성분 중 1개라도 있는것) 검색하기
+       *
+       * @캠핑장1 /api/campsite/search/searchByCampsiteName
+       *  @기능 검색어가 포함된 결과 찾기
+       * @캠핑장2 /api/campsite/search/searchByDescription
+       *  @기능 문장으로 검색하기
+       *
+       * @대한민국주소검색1 /api/address/search/searchByRoadaddress
+       *  @기능1 도로명 검색: 시도+시구군+읍면+도로명+건물번호본번+"-"+건물번호부번
+       *  @기능2 여러 프로퍼티(=칼럼) 통합 검색 + 여러 필드에서 최상의 매칭을 찾음(best_fields) + 오타에 유연하게 대응(fuzziness)
+       * @대한민국주소검색2 /api/address/search/searchByJibunaddress
+       *  @기능1 지번 검색: 시도+시구군+읍면+법정동명+리명+지번본번+"-"+지번부번(0제외)
+       *  @기능2 여러 프로퍼티(=칼럼) 통합 검색 + 여러 필드에서 최상의 매칭을 찾음(best_fields) + 오타에 유연하게 대응(fuzziness)
+       *  @기능3 앞쪽 글자에 매칭할수록 가중치 적용
+       */
+      const data = await axios.get<{ data: any[] }>(`/api/address/search/searchByRoadaddress?query=${query}`);
+      setSearchDataList(data.data.data);
+    } catch (e) {
+      console.error("Error fetching search results:", e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // debounce the fetchSearchResults function
+  const debouncedFetchSearchResults = useCallback(debounce(fetchSearchResults, 300), []);
+
+  const onChangeText: ChangeEventHandler<HTMLInputElement> = ({ target: { value } }) => {
     setIsInput(value.length > 0);
     if (value.trim()) {
-      const data = await axios
-        .get<{ data: any[] }>(`/api/getSearchDataListHealthSupplementByName?query=${value}`)
-        .catch((e) => console.error("Error fetching search results:", e));
-      if (!data) return;
-      setSearchDataList(data.data.data);
+      debouncedFetchSearchResults(value);
     } else {
       setSearchDataList([]);
     }
   };
+
+  console.log("searchDataList", searchDataList);
 
   return (
     <>
@@ -41,7 +83,7 @@ export default function Home() {
           className={`${styles.description} ${!isInput ? styles["description-active"] : ""}`}
           style={{ justifyContent: "space-between" }}
         >
-          <p>검색어를 입력하여 검색해보세요. [현재 검색 index: {MY_BRANCH}]</p>
+          <p>검색어를 입력하여 검색해보세요. !!! [현재 검색 index: {MY_BRANCH}]</p>
           <div>
             <a href="https://www.syu.ac.kr/cse/" target="_blank" rel="noopener noreferrer">
               By{" "}
@@ -55,7 +97,6 @@ export default function Home() {
             </a>
           </div>
         </div>
-
         <div
           className={styles.center}
           style={{ display: "flex", paddingTop: isInput ? 0 : "25vh", transition: "all 1s ease-out" }}
@@ -67,8 +108,41 @@ export default function Home() {
           />
         </div>
 
-        <div className={styles.grid} />
-        {searchDataList && searchDataList.map((i) => <div>{JSON.stringify(i)}</div>)}
+        {isInput && (
+          <div
+            className={styles.grid}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              backgroundColor: " rgba(var(--callout-rgb), 0.5)",
+              border: "1px solid rgba(63, 119, 147, 0.3)",
+              borderRadius: "var(--border-radius)",
+              padding: 12,
+              maxHeight: "70vh",
+              overflowY: "scroll",
+            }}
+          >
+            {isLoading ? (
+              <div>불러오는 중입니다...</div>
+            ) : searchDataList.length === 0 ? (
+              <div>검색결과가 없습니다.</div>
+            ) : (
+              searchDataList.map((i) => (
+                <div key={i._id}>
+                  추천점수: {i._score}
+                  <br />
+                  {Object.entries(i._source).map(([key, value]) => (
+                    <div key={key}>
+                      {key}: {value}
+                      <br />
+                    </div>
+                  ))}
+                  <div style={{ margin: 8, height: 4, width: "100%", background: "gray" }} />
+                </div>
+              ))
+            )}
+          </div>
+        )}
       </main>
     </>
   );
